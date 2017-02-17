@@ -20,7 +20,7 @@ lazy val core = (project in file("."))
     commonSettings,
     name := "IntegrationCore",
     publishTo := Some(Resolver.file("file", new File("release"))),
-    publishMavenStyle := true,
+    publishMavenStyle := false,
     releaseVersion := {
       ver =>
         isFinal match {
