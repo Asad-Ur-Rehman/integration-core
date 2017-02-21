@@ -19,6 +19,7 @@ project/boot/
 project/target
 project/project
 project/plugins/project/
+release
 
 .history
 .cache
