@@ -1,0 +1,56 @@
+<settings>
+    <servers>
+        <server>
+            <id>integrationcore</id>
+            <configuration>
+                <httpHeaders>
+                    <property>
+                        <name>Authorization</name>
+                        <!-- Base64-encoded username:access_token -->
+                        <value>Basic c2hhaGJhenNodWViLTEwcDo5ZWVkODVlNDdjYzJlZTJhODhjY2FlYTgyOTViOTQxZTFmODkxY2E4</value>
+                    </property>
+                </httpHeaders>
+            </configuration>
+        </server>
+        <server>
+            <id>providerfactory</id>
+            <configuration>
+                <httpHeaders>
+                    <property>
+                        <name>Authorization</name>
+                        <!-- Base64-encoded username:access_token -->
+                        <value>Basic c2hhaGJhenNodWViLTEwcDo5ZWVkODVlNDdjYzJlZTJhODhjY2FlYTgyOTViOTQxZTFmODkxY2E4</value>
+                    </property>
+                </httpHeaders>
+            </configuration>
+        </server>
+    </servers>
+    <mirrors>
+        <mirror>
+            <id>maven</id>
+            <name>master</name>
+            <url>https://repo1.maven.org/maven2/</url>
+            <mirrorOf>central</mirrorOf>
+        </mirror>
+    </mirrors>
+    <profiles>
+        <profile>
+            <id>allow-snapshots</id>
+            <activation><activeByDefault>true</activeByDefault></activation>
+            <repositories>
+                <repository>
+                    <id>integrationcore</id>
+                    <url>https://raw.githubusercontent.com/signalvine/integration-core/repository/mvn-repo</url>
+                    <releases><enabled>true</enabled></releases>
+                    <snapshots><enabled>true</enabled></snapshots>
+                </repository>
+                <repository>
+                    <id>providerfactory</id>
+                    <url>https://raw.githubusercontent.com/signalvine/integration-provider-factory/repository/mvn-repo</url>
+                    <releases><enabled>true</enabled></releases>
+                    <snapshots><enabled>true</enabled></snapshots>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
+</settings>

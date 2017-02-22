@@ -1,6 +1,14 @@
 import sbtrelease.ReleaseStateTransformations._
 import sbtrelease.{Version, versionFormatError}
 
+val integrationCoreVersion = "0.1.0-SNAPSHOT"
+
+lazy val fetch = taskKey[Unit]("Fetch Dependencies")
+
+fetch:={
+  "./ci/fetch.sh " + integrationCoreVersion!
+}
+
 val isFinal = {
   Option(System.getProperty("final")).getOrElse("false") match {
     case "false" => false
@@ -55,5 +63,7 @@ lazy val runner = (project in file("."))
       }
     },
     libraryDependencies ++= Seq("org.specs2" %% "specs2-core" % "3.8.7" % Test),
-    libraryDependencies ++= Seq("org.scalamock" %% "scalamock-scalatest-support" % "3.4.2" % Test)
+    libraryDependencies ++= Seq("org.scalamock" %% "scalamock-scalatest-support" % "3.4.2" % Test),
+    libraryDependencies ++= Seq("com.signalvine" %% "integration-core" % integrationCoreVersion),
+    resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL + ".m2/repository")
   )
