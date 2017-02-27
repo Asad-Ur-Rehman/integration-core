@@ -5,8 +5,8 @@ val integrationCoreVersion = "0.1.0-SNAPSHOT"
 
 lazy val fetch = taskKey[Unit]("Fetch Dependencies")
 
-fetch:={
-  "./ci/fetch.sh " + integrationCoreVersion!
+fetch := {
+  "./ci/fetch.sh " + integrationCoreVersion !
 }
 
 val isFinal = {
@@ -18,6 +18,7 @@ val isFinal = {
 
 lazy val runner = (project in file("."))
   .settings(
+    (update) <<= (update) dependsOn (fetch),
     name := "provider-factory",
     organization := "com.signalvine",
     scalaVersion := "2.11.8",
@@ -65,5 +66,8 @@ lazy val runner = (project in file("."))
     libraryDependencies ++= Seq("org.specs2" %% "specs2-core" % "3.8.7" % Test),
     libraryDependencies ++= Seq("org.scalamock" %% "scalamock-scalatest-support" % "3.4.2" % Test),
     libraryDependencies ++= Seq("com.signalvine" %% "integration-core" % integrationCoreVersion),
+    libraryDependencies ++= Seq("net.codingwell" %% "scala-guice" % "4.1.0"),
+    libraryDependencies ++= Seq("org.clapper" %% "classutil" % "1.1.1"),
+    libraryDependencies ++= Seq("ch.qos.logback" % "logback-core" % "1.1.2", "ch.qos.logback" % "logback-classic" % "1.1.2"),
     resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL + ".m2/repository")
   )
