@@ -8,7 +8,9 @@ import org.specs2.matcher.{JsonMatchers, JsonType, Matcher}
 
 class IntegrationConfigurationSpec extends Specification with JsonMatchers {
   "IntegrationConfiguration" should {
-
+    val url = "https://foo.com"
+    val secret = "1234-1234-1234-12345678-123456789012"
+    val token = "1234"
     val identitySection = new IdentitySection(
       "PROVIDER_ID",
       "Foo Bar",
@@ -22,6 +24,9 @@ class IntegrationConfigurationSpec extends Specification with JsonMatchers {
     )
     val signalVineSection = new SignalVineSection(
       UUID.fromRaw[Program](UUID.genRaw()),
+      url,
+      token,
+      secret,
       Seq[Field](
         new Field("Foo", "Bar")
       )
@@ -55,6 +60,9 @@ class IntegrationConfigurationSpec extends Specification with JsonMatchers {
       }
 
       json must /("signalVine")/("programId", signalVineSection.programId.toString)
+      json must /("signalVine")/("url", signalVineSection.url)
+      json must /("signalVine")/("token", signalVineSection.token)
+      json must /("signalVine")/("secret", signalVineSection.secret)
       json must beAFieldListOf(anObjectWith("name" -> "Foo", "type" -> "Bar"))
     }
 
@@ -78,6 +86,9 @@ class IntegrationConfigurationSpec extends Specification with JsonMatchers {
            |  },
            |  "signalVine": {
            |    "programId": "${signalVineSection.programId.toString}",
+           |    "url" : "$url",
+           |    "token" : "$token",
+           |    "secret" : "$secret",
            |    "fields": [
            |      ${signalVineSection.fields.map(f => s"""{"name": "${f.name}", "type": "${f.`type`}"}""").mkString(",")}
            |    ]
@@ -106,6 +117,9 @@ class IntegrationConfigurationSpec extends Specification with JsonMatchers {
       }
 
       o.signalVine.programId mustEqual signalVineSection.programId
+      o.signalVine.url mustEqual signalVineSection.url
+      o.signalVine.token mustEqual signalVineSection.token
+      o.signalVine.secret mustEqual signalVineSection.secret
       Result.foreach(signalVineSection.fields.indices) { i =>
         o.signalVine.fields(i).name mustEqual signalVineSection.fields(i).name
         o.signalVine.fields(i).`type` mustEqual signalVineSection.fields(i).`type`
