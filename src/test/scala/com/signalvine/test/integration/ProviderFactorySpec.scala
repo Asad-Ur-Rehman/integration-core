@@ -14,10 +14,7 @@ class ProviderFactorySpec extends Specification {
       ProviderFactory.getProvider("").isEmpty mustEqual true
     }
   }
-  "ProviderFactory" should {
-    "return a Provider List's length when listproviders is called" >> {
-      ProviderFactory.listProviders().length must be >= 1
-    }
-  }
 }
+
+
 
