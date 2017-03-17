@@ -1,14 +1,6 @@
 import sbtrelease.ReleaseStateTransformations._
 import sbtrelease.{Version, versionFormatError}
 
-val integrationCoreVersion = "0.1.0-SNAPSHOT"
-
-lazy val fetch = taskKey[Unit]("Fetch Dependencies")
-
-fetch := {
-  "./ci/fetch.sh " + integrationCoreVersion !
-}
-
 val isFinal = {
   Option(System.getProperty("final")).getOrElse("false") match {
     case "false" => false
@@ -18,13 +10,17 @@ val isFinal = {
 
 lazy val runner = (project in file("."))
   .settings(
-    (update) <<= (update) dependsOn (fetch),
     name := "provider-factory",
     organization := "com.signalvine",
     scalaVersion := "2.11.8",
-    publishTo := Some(Resolver.file("file", new File("release"))),
-    publishMavenStyle := true,
-
+    publishTo := {
+      val nexus = "https://nexus.signalvine.com/"
+      if (isSnapshot.value)
+        Some("maven-snapshots" at nexus + "repository/maven-snapshots")
+      else
+        Some("maven-releases"  at nexus + "repository/maven-releases")
+    },
+    credentials += Credentials(Path.userHome / ".sbt" / ".credentials"),
     releaseVersion := {
       ver =>
         isFinal match {
@@ -65,9 +61,10 @@ lazy val runner = (project in file("."))
     },
     libraryDependencies ++= Seq("org.specs2" %% "specs2-core" % "3.8.7" % Test),
     libraryDependencies ++= Seq("org.scalamock" %% "scalamock-scalatest-support" % "3.4.2" % Test),
-    libraryDependencies ++= Seq("com.signalvine" %% "integration-core" % integrationCoreVersion),
+    libraryDependencies ++= Seq("com.signalvine" %% "integration-core" % "0.1.1-SNAPSHOT"),
     libraryDependencies ++= Seq("net.codingwell" %% "scala-guice" % "4.1.0"),
     libraryDependencies ++= Seq("org.clapper" %% "classutil" % "1.1.1"),
     libraryDependencies ++= Seq("ch.qos.logback" % "logback-core" % "1.1.2", "ch.qos.logback" % "logback-classic" % "1.1.2"),
-    resolvers ++= Seq("Local Maven" at Path.userHome.asFile.toURI.toURL + ".m2/repository")
+    resolvers ++= Seq("maven-snapshots" at "https://nexus.signalvine.com/repository/maven-snapshots"),
+    resolvers ++= Seq("maven-releases"  at "https://nexus.signalvine.com/repository/maven-releases")
   )
