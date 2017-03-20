@@ -19,7 +19,7 @@ class NullProviderSpec extends Specification {
             "lastProcessedId" : "123"
         }"""
     )
-  val integrationConfiguration = new IntegrationConfiguration(identitySection,
+  val jobConfiguration = new JobConfiguration(identitySection,
     signalVineSection, mapSection, targetConfig)
 
   "Null Provider" should {
@@ -28,35 +28,37 @@ class NullProviderSpec extends Specification {
       NullProvider.getAuthFields.size mustEqual 1
     }
 
-    "return an array of length 2 when listFields is called" >> {
-      NullProvider.listFields(Seq(new AuthInfo("", ""))).length mustEqual 2
-    }
-
-    "return name of field  when listFields is called" >> {
-      NullProvider.listFields(Seq(new AuthInfo("", "")))(0).name mustEqual "first.name"
-    }
-
     """return targetConfig with different lastProcessedId inside integrationConfiguration object
       | when execute is called""".stripMargin >> {
-      NullProvider.execute(integrationConfiguration).targetConfig \ "name" mustEqual
+      NullProvider.execute(jobConfiguration).targetConfig \ "name" mustEqual
         targetConfig \ "name"
-      NullProvider.execute(integrationConfiguration).targetConfig \ "lastProcessedId" mustNotEqual
+      NullProvider.execute(jobConfiguration).targetConfig \ "lastProcessedId" mustNotEqual
         targetConfig \ "lastProcessedId"
     }
 
     """return a map inside integrationConfiguration object when execute is called
       | which should be equal to mapSection""".stripMargin >> {
-      NullProvider.execute(integrationConfiguration).map mustEqual mapSection
+      NullProvider.execute(jobConfiguration).map mustEqual mapSection
     }
 
     "return signalVine inside integrationConfiguration object when execute is called" >> {
-      NullProvider.execute(integrationConfiguration).signalVine mustEqual signalVineSection
+      NullProvider.execute(jobConfiguration).signalVine mustEqual signalVineSection
     }
 
     "return saved/default values when properties of metadata are accessed" >> {
       NullProvider.metaData.id mustEqual "null-provider"
       NullProvider.metaData.targetSystemName mustEqual "NullProvider"
       NullProvider.metaData.description mustEqual "A null provider with no actual data"
+    }
+    """return jobConfiguration with targetConfig filled
+      | when fillTargetConfig is called""".stripMargin >> {
+      val authInfo = Json.parse(
+        """[{"url":"test.com"}]"""
+      )
+      val obj = Json.fromJson[Seq[AuthInfo]](authInfo).get
+      val jobConfig = new JobConfiguration(identitySection,
+        signalVineSection, mapSection, null)
+      NullProvider.fillTargetConfig(jobConfig, obj) must beSuccessfulTry
     }
   }
 }
