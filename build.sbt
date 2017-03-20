@@ -19,7 +19,14 @@ lazy val core = (project in file("."))
   .settings(
     commonSettings,
     name := "integration-core",
-    publishTo := Some(Resolver.file("file", new File("release"))),
+    publishTo := {
+      val nexus = "https://nexus.signalvine.com/"
+      if (isSnapshot.value)
+        Some("maven-snapshots" at nexus + "repository/maven-snapshots")
+      else
+        Some("maven-releases"  at nexus + "repository/maven-releases")
+    },
+    credentials += Credentials(Path.userHome / ".sbt" / ".credentials"),
     publishMavenStyle := true,
     releaseVersion := {
       ver =>
