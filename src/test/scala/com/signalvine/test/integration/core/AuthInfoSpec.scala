@@ -6,20 +6,20 @@ import org.specs2.mutable.Specification
 import play.api.libs.json.Json
 
 class AuthInfoSpec extends Specification with JsonMatchers {
-  val name = "Auth_info"
-  val value = "anything"
+  val name = "username"
+  val value = "signalvine"
   "AuthInfo" should {
     "serialize into JSON with all fields provided" >> {
       val o = new AuthInfo(name, value)
       val json = Json.toJson(o).toString
-      json must /("name", name)
-      json must /("value", value)
+      json must /(name, value)
     }
 
     "deserialize into object with all fields provided" >> {
       val json = Json.parse(
-        s"""{"name":"$name","value":"$value"}"""
+        s"""{"username": "signalvine"}"""
       )
+
       val o = Json.fromJson[AuthInfo](json).get
       o.name mustEqual name
       o.value mustEqual value

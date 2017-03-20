@@ -10,7 +10,7 @@ sealed trait Account
 case class SyncJob(integrationId: UUID[Integration],
                    programId: UUID[Program],
                    accountId: UUID[Account],
-                   integrationConfiguration: IntegrationConfiguration,
+                   jobConfiguration: JobConfiguration,
                    nextRunTime: DateTime,
                    schedule: String)
 
@@ -19,7 +19,7 @@ object SyncJob {
     (__ \ 'integrationId).write[UUID[Integration]] and
       (__ \ 'programId).write[UUID[Program]] and
       (__ \ 'accountId).write[UUID[Account]] and
-      (__ \ 'integrationConfiguration).write[IntegrationConfiguration] and
+      (__ \ 'jobConfiguration).write[JobConfiguration] and
       (__ \ 'nextRunTime).write[DateTime] and
       (__ \ 'schedule).write[String]
     ) (unlift(SyncJob.unapply))
@@ -28,7 +28,7 @@ object SyncJob {
     (__ \ 'integrationId).read[UUID[Integration]] and
       (__ \ 'programId).read[UUID[Program]] and
       (__ \ 'accountId).read[UUID[Account]] and
-      (__ \ 'integrationConfiguration).read[IntegrationConfiguration] and
+      (__ \ 'jobConfiguration).read[JobConfiguration] and
       (__ \ 'nextRunTime).read[DateTime] and
       (__ \ 'schedule).read[String]
     ) (SyncJob.apply _)

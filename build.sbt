@@ -72,5 +72,6 @@ lazy val core = (project in file("."))
     libraryDependencies ++= Seq("org.specs2" %% "specs2-core" % "3.8.7" % Test),
     libraryDependencies ++= Seq("org.specs2" %% "specs2-matcher-extra" % "3.8.7" % Test),
     libraryDependencies ++= Seq("org.scalamock" %% "scalamock-scalatest-support" % "3.4.2" % Test),
+    libraryDependencies += "commons-codec" % "commons-codec" % "1.9",
     resolvers ++= Seq("Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/")
   )

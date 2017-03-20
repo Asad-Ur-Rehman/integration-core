@@ -1,5 +1,5 @@
 package com.signalvine.test.integration.core
-import com.signalvine.integration.core.{AuthInfo, ProviderMetadata}
+import com.signalvine.integration.core.ProviderMetadata
 import org.specs2.matcher.JsonMatchers
 import org.specs2.mutable.Specification
 import play.api.libs.json.Json
