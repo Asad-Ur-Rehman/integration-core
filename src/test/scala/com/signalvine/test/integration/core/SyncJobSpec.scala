@@ -18,7 +18,7 @@ class SyncJobSpec extends Specification with JsonMatchers {
     /(name).andHave(eachOf(fields: _*))
 
   def beAFieldListOf(fields: Matcher[String]*): Matcher[String] =
-    (/("integrationConfiguration") / ("signalVine") / ("fields")).andHave(allOf(fields: _*))
+    (/("jobConfiguration") / ("signalVine") / ("fields")).andHave(allOf(fields: _*))
 
   "SyncJob" should {
     val integrationId = UUID.gen[Integration]()
@@ -49,24 +49,24 @@ class SyncJobSpec extends Specification with JsonMatchers {
       )
     )
     val targetConfig = Json.parse("""{"foo": {"unicorn": "pony"}, "array": [1,2,3,4]}""")
-    val integrationConfiguration = new IntegrationConfiguration(identitySection, signalVineSection, mapSection, targetConfig)
+    val jobConfiguration = new JobConfiguration(identitySection, signalVineSection, mapSection, targetConfig)
 
     val nextRunTime = DateTime.now()
     val schedule = "schedule"
     "serialize into JSON with all fields provided" >> {
-      val o = new SyncJob(integrationId, programId, accountId, integrationConfiguration, nextRunTime, schedule)
+      val o = new SyncJob(integrationId, programId, accountId, jobConfiguration, nextRunTime, schedule)
       val json = Json.toJson(o).toString
       json must /("integrationId", integrationId.toString)
       json must /("programId", programId.toString)
       json must /("accountId", accountId.toString)
-      json must haveObject("integrationConfiguration",
+      json must haveObject("jobConfiguration",
         haveObject("identity", /("providerId", identitySection.providerId)) and
           haveObject("identity", /("modified", identitySection.modified.toString)) and
           haveObject("identity", /("created", identitySection.created.toString)) and
           haveObject("identity", /("createdBy", identitySection.createdBy.toString)) and
           haveObject("identity", /("notes", identitySection.notes))
       )
-      json must haveObject("integrationConfiguration",
+      json must haveObject("jobConfiguration",
         haveObject("signalVine", /("programId", signalVineSection.programId.toString)) and
           haveObject("signalVine", /("url", signalVineSection.url)) and
           haveObject("signalVine", /("token", signalVineSection.token)) and
@@ -77,10 +77,10 @@ class SyncJobSpec extends Specification with JsonMatchers {
       json must beAFieldListOf(anObjectWith("name" -> "Foo", "type" -> "Bar"))
 
       Result.foreach(1 to mapSection.in.size) { i =>
-        json must /("integrationConfiguration") / ("map") / ("in") / (s"in$i", mapSection.in(s"in$i"))
+        json must /("jobConfiguration") / ("map") / ("in") / (s"in$i", mapSection.in(s"in$i"))
       }
       Result.foreach(1 to mapSection.out.size) { o =>
-        json must /("integrationConfiguration") / ("map") / ("out") / (s"out$o", mapSection.out(s"out$o"))
+        json must /("jobConfiguration") / ("map") / ("out") / (s"out$o", mapSection.out(s"out$o"))
       }
       json must /("nextRunTime", nextRunTime.toString)
       json must /("schedule", schedule)
@@ -92,7 +92,7 @@ class SyncJobSpec extends Specification with JsonMatchers {
            |  "integrationId":"${integrationId}",
            |  "programId":"${programId}",
            |  "accountId":"${accountId}",
-           |  "integrationConfiguration":{
+           |  "jobConfiguration":{
            |    "identity": {
            |      "providerId":"${identitySection.providerId}",
            |      "createdBy":"${identitySection.createdBy}",
@@ -134,30 +134,30 @@ class SyncJobSpec extends Specification with JsonMatchers {
       o.programId mustEqual programId
       o.nextRunTime mustEqual nextRunTime
       o.schedule mustEqual schedule
-      o.integrationConfiguration.identity.providerId mustEqual identitySection.providerId
-      o.integrationConfiguration.identity.created mustEqual identitySection.created
-      o.integrationConfiguration.identity.modified mustEqual identitySection.modified
-      o.integrationConfiguration.identity.createdBy mustEqual identitySection.createdBy
-      o.integrationConfiguration.identity.notes mustEqual identitySection.notes
+      o.jobConfiguration.identity.providerId mustEqual identitySection.providerId
+      o.jobConfiguration.identity.created mustEqual identitySection.created
+      o.jobConfiguration.identity.modified mustEqual identitySection.modified
+      o.jobConfiguration.identity.createdBy mustEqual identitySection.createdBy
+      o.jobConfiguration.identity.notes mustEqual identitySection.notes
 
       Result.foreach(1 to mapSection.in.size) { i =>
-        o.integrationConfiguration.map.in(s"in$i") mustEqual mapSection.in(s"in$i")
+        o.jobConfiguration.map.in(s"in$i") mustEqual mapSection.in(s"in$i")
       }
 
       Result.foreach(1 to mapSection.out.size) { i =>
-        o.integrationConfiguration.map.out(s"out$i") mustEqual mapSection.out(s"out$i")
+        o.jobConfiguration.map.out(s"out$i") mustEqual mapSection.out(s"out$i")
       }
 
-      o.integrationConfiguration.signalVine.programId mustEqual signalVineSection.programId
-      o.integrationConfiguration.signalVine.url mustEqual signalVineSection.url
-      o.integrationConfiguration.signalVine.token mustEqual signalVineSection.token
-      o.integrationConfiguration.signalVine.secret mustEqual signalVineSection.secret
+      o.jobConfiguration.signalVine.programId mustEqual signalVineSection.programId
+      o.jobConfiguration.signalVine.url mustEqual signalVineSection.url
+      o.jobConfiguration.signalVine.token mustEqual signalVineSection.token
+      o.jobConfiguration.signalVine.secret mustEqual signalVineSection.secret
       Result.foreach(signalVineSection.fields.indices) { i =>
-        o.integrationConfiguration.signalVine.fields(i).name mustEqual signalVineSection.fields(i).name
-        o.integrationConfiguration.signalVine.fields(i).`type` mustEqual signalVineSection.fields(i).`type`
+        o.jobConfiguration.signalVine.fields(i).name mustEqual signalVineSection.fields(i).name
+        o.jobConfiguration.signalVine.fields(i).`type` mustEqual signalVineSection.fields(i).`type`
       }
 
-      o.integrationConfiguration.targetConfig.toString mustEqual targetConfig.toString
+      o.jobConfiguration.targetConfig.toString mustEqual targetConfig.toString
     }
   }
 }

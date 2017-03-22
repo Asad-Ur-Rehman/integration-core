@@ -1,6 +1,5 @@
 package com.signalvine.integration.core
 
-//import io.jvm.uuid._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 

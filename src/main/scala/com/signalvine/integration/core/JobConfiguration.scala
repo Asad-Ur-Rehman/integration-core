@@ -3,25 +3,25 @@ package com.signalvine.integration.core
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
-case class IntegrationConfiguration(
+case class JobConfiguration(
                                      identity: IdentitySection,
                                      signalVine: SignalVineSection,
                                      map: MapSection,
                                      targetConfig: JsValue
                                    )
 
-object IntegrationConfiguration {
-  implicit val integrationConfigurationWrites: Writes[IntegrationConfiguration] = (
+object JobConfiguration {
+  implicit val jobConfigurationWrites: Writes[JobConfiguration] = (
     (__ \ 'identity).write[IdentitySection] and
     (__ \ 'signalVine).write[SignalVineSection] and
     (__ \ 'map).write[MapSection] and
     (__ \ 'targetConfig).write[JsValue]
-  ) (unlift(IntegrationConfiguration.unapply))
+  ) (unlift(JobConfiguration.unapply))
 
-  implicit val integrationConfigurationReads: Reads[IntegrationConfiguration] = (
+  implicit val jobConfigurationReads: Reads[JobConfiguration] = (
     (__ \ 'identity).read[IdentitySection] and
     (__ \ 'signalVine).read[SignalVineSection] and
     (__ \ 'map).read[MapSection] and
     (__ \ 'targetConfig).read[JsValue]
-  ) (IntegrationConfiguration.apply _)
+  ) (JobConfiguration.apply _)
 }

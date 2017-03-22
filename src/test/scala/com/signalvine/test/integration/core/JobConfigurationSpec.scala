@@ -6,8 +6,8 @@ import play.api.libs.json.Json
 import org.specs2.mutable.Specification
 import org.specs2.matcher.{JsonMatchers, JsonType, Matcher}
 
-class IntegrationConfigurationSpec extends Specification with JsonMatchers {
-  "IntegrationConfiguration" should {
+class JobConfigurationSpec extends Specification with JsonMatchers {
+  "JobConfiguration" should {
     val url = "https://foo.com"
     val secret = "1234-1234-1234-12345678-123456789012"
     val token = "1234"
@@ -40,7 +40,7 @@ class IntegrationConfigurationSpec extends Specification with JsonMatchers {
       (/("signalVine")/("fields")).andHave(allOf(fields : _*))
 
     "serialize into JSON with all fields provided" >> {
-      val o = new IntegrationConfiguration(identitySection, signalVineSection, mapSection, targetConfig)
+      val o = new JobConfiguration(identitySection, signalVineSection, mapSection, targetConfig)
       val json = Json.toJson(o).toString
 
       json must /("identity", anObjectWith(
@@ -100,7 +100,7 @@ class IntegrationConfigurationSpec extends Specification with JsonMatchers {
            |    "array": [1, 2, 3, 4]
            |  }
            |}""".stripMargin)
-      val o = Json.fromJson[IntegrationConfiguration](json).get
+      val o = Json.fromJson[JobConfiguration](json).get
 
       o.identity.providerId mustEqual identitySection.providerId
       o.identity.created mustEqual identitySection.created

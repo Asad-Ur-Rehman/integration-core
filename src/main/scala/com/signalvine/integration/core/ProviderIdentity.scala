@@ -55,18 +55,3 @@ object ProviderIdentity {
   ) (ProviderIdentity.apply _)
 }
 
-case class AuthInfo(name: String, value: String)
-
-object AuthInfo {
-
-  implicit val authInfoWrite: Writes[AuthInfo] = (
-    (__ \ 'name).write[String] and
-    (__ \ 'value).write[String]
-  ) (unlift(AuthInfo.unapply))
-
-  implicit val authInfoRead: Reads[AuthInfo] = (
-    (__ \ 'name).read[String] and
-    (__ \ 'value).read[String]
-  ) (AuthInfo.apply _)
-}
-
