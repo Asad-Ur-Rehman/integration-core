@@ -38,8 +38,15 @@ object NullProvider extends IntegrationProvider {
     val signalVineSection = conf.signalVine
     val mapSection = conf.map
     val targetConfig = conf.targetConfig.as[JsObject] ++ Json.obj("lastProcessedId" -> "777")
+    val syncError1 =  SyncError(UUID.gen[Participant], "Something unexpected happened", "Something unexpected happened")
+    val syncError2 =  SyncError(UUID.gen[Participant], "Something unexpected happened again", "Something unexpected happened again")
+    val syncErrors = Seq[SyncError](
+      syncError1,
+      syncError2
+    )
+    val successResult: Result = SuccessResult(DateTime.now, DateTime.now, 100, 100, 77, syncErrors)
 
-    (new Result("Success"), new JobConfiguration(identitySection, signalVineSection, mapSection, targetConfig))
+    (successResult, new JobConfiguration(identitySection, signalVineSection, mapSection, targetConfig))
   }
 
   override def fillTargetConfig(jobConfiguration: JobConfiguration, authenticationInfo: Seq[AuthInfo]):
