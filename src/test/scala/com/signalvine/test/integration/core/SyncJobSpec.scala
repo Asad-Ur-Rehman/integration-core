@@ -54,7 +54,7 @@ class SyncJobSpec extends Specification with JsonMatchers {
     val nextRunTime = DateTime.now()
     val schedule = "schedule"
     "serialize into JSON with all fields provided" >> {
-      val o = new SyncJob(integrationId, programId, accountId, jobConfiguration, nextRunTime, schedule)
+      val o = new SyncJob(integrationId, programId, accountId, jobConfiguration, nextRunTime, schedule, Some(IntegrationStarted))
       val json = Json.toJson(o).toString
       json must /("integrationId", integrationId.toString)
       json must /("programId", programId.toString)
