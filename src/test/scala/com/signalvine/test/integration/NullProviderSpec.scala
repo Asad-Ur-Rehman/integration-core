@@ -30,19 +30,19 @@ class NullProviderSpec extends Specification {
 
     """return targetConfig with different lastProcessedId inside integrationConfiguration object
       | when execute is called""".stripMargin >> {
-      NullProvider.execute(jobConfiguration).targetConfig \ "name" mustEqual
+      NullProvider.execute(jobConfiguration)._2.targetConfig \ "name" mustEqual
         targetConfig \ "name"
-      NullProvider.execute(jobConfiguration).targetConfig \ "lastProcessedId" mustNotEqual
+      NullProvider.execute(jobConfiguration)._2.targetConfig \ "lastProcessedId" mustNotEqual
         targetConfig \ "lastProcessedId"
     }
 
     """return a map inside integrationConfiguration object when execute is called
       | which should be equal to mapSection""".stripMargin >> {
-      NullProvider.execute(jobConfiguration).map mustEqual mapSection
+      NullProvider.execute(jobConfiguration)._2.map mustEqual mapSection
     }
 
     "return signalVine inside integrationConfiguration object when execute is called" >> {
-      NullProvider.execute(jobConfiguration).signalVine mustEqual signalVineSection
+      NullProvider.execute(jobConfiguration)._2.signalVine mustEqual signalVineSection
     }
 
     "return saved/default values when properties of metadata are accessed" >> {
