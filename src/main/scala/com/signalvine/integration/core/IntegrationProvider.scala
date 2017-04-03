@@ -2,8 +2,6 @@ package com.signalvine.integration.core
 
 import scala.util.Try
 
-case class Result(status: String)
-
 trait IntegrationProvider {
   val id: String
   val metaData: ProviderMetadata
