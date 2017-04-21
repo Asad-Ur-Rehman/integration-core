@@ -2,11 +2,12 @@ package com.signalvine.test.integration
 
 import com.signalvine.integration.NullProvider
 import com.signalvine.integration.core._
+import org.scalatest.concurrent.ScalaFutures
 import org.specs2.mutable._
 import play.api.libs.json.{JsValue, Json}
 
-class NullProviderSpec extends Specification {
-
+class NullProviderSpec extends Specification  with ScalaFutures {
+  val authInfo = Seq(AuthInfo("url", "test.com"))
   val identitySection = new IdentitySection("nullProvider", "SomeoneNull", DateTime.now(), DateTime.now(), "Null Notes")
   val signalVineSection = new SignalVineSection(UUID.gen[Program](), "https://foo.com", "123",
     "1234-1234", Seq(new Field("nullProvider", "null")))
@@ -27,22 +28,26 @@ class NullProviderSpec extends Specification {
       NullProvider.getAuthFields.isInstanceOf[Seq[AuthField]] mustEqual true
       NullProvider.getAuthFields.size mustEqual 1
     }
+  }
 
     """return targetConfig with different lastProcessedId inside integrationConfiguration object
       | when execute is called""".stripMargin >> {
-      NullProvider.execute(jobConfiguration)._2.targetConfig \ "name" mustEqual
-        targetConfig \ "name"
-      NullProvider.execute(jobConfiguration)._2.targetConfig \ "lastProcessedId" mustNotEqual
-        targetConfig \ "lastProcessedId"
+      whenReady(NullProvider.execute(jobConfiguration, authInfo)) { v =>
+        v._2.targetConfig \ "name" mustEqual targetConfig \ "name"
+        v._2.targetConfig \ "lastProcessedId" mustNotEqual  targetConfig \ "lastProcessedId"
+      }
     }
 
     """return a map inside integrationConfiguration object when execute is called
       | which should be equal to mapSection""".stripMargin >> {
-      NullProvider.execute(jobConfiguration)._2.map mustEqual mapSection
+      whenReady(NullProvider.execute(jobConfiguration, authInfo)) { v =>
+        v._2.map mustEqual mapSection
+      }
     }
 
     "return signalVine inside integrationConfiguration object when execute is called" >> {
-      NullProvider.execute(jobConfiguration)._2.signalVine mustEqual signalVineSection
+      whenReady(NullProvider.execute(jobConfiguration, authInfo)){ v =>
+        v._2.signalVine mustEqual signalVineSection
     }
 
     "return saved/default values when properties of metadata are accessed" >> {
@@ -52,13 +57,12 @@ class NullProviderSpec extends Specification {
     }
     """return jobConfiguration with targetConfig filled
       | when fillTargetConfig is called""".stripMargin >> {
-      val authInfo = Json.parse(
-        """[{"url":"test.com"}]"""
-      )
-      val obj = Json.fromJson[Seq[AuthInfo]](authInfo).get
       val jobConfig = new JobConfiguration(identitySection,
         signalVineSection, mapSection, null)
-      NullProvider.fillTargetConfig(jobConfig, obj) must beSuccessfulTry
+      whenReady(NullProvider.fillTargetConfig(jobConfig, authInfo)) { v =>
+        (v.targetConfig \ "lastProcessedId").asOpt[String].get mustEqual "1234"
+        (v.targetConfig \ "lookupId").asOpt[String].get mustEqual "123"
+      }
     }
   }
 }
