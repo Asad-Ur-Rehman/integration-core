@@ -3,6 +3,6 @@ Shared library for scala based integration project.  This project defines import
 + [Integration API](https://github.com/signalvine/integration-api)
 + [Integration Runner](https://github.com/signalvine/integration-runner)
 + [Integration Provider Factory](https://github.com/signalvine/integration-provider-factory)
-+ [Ethos Integration Provider](https://github.com/signalvine/ethos-provider)
++ [SFTP Integration Provider](https://github.com/signalvine/integration-sftp-provider)
 
 
