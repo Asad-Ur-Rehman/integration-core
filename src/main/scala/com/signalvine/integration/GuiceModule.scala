@@ -10,8 +10,9 @@ import org.clapper.classutil.{ClassFinder, ClassInfo}
 import com.typesafe.config.ConfigFactory
 
 class GuiceModule extends AbstractModule with ScalaModule {
+
   override def configure(): Unit = {
-    val jarFilesList = getListOfFiles(ConfigFactory.load().getString("watcher.folder"))
+    val jarFilesList = getListOfFiles(ConfigFactory.load().getString("providers.folder.path"))
       .filter((p: File) => p.isFile && p.getName.endsWith(".jar"))
     val providers = jarFilesList match {
       case Nil => Seq()
