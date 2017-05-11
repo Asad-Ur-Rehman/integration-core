@@ -17,7 +17,7 @@ trait IntegrationProvider {
                       ): Future[JobConfiguration]
 }
 
-case class ProviderException(message: String, inner: Option[Exception]) extends Exception(message, inner.orNull)
-case class ProviderAuthenticationException(message: String, inner: Option[Exception]) extends Exception(message, inner.orNull)
-case class NetworkTimeoutException(message: String, inner: Option[Exception]) extends Exception(message, inner.orNull)
-case class NetworkUnreachableException(message: String, inner: Option[Exception]) extends Exception(message, inner.orNull)
+case class ProviderException(message: String, inner: Option[Throwable]) extends Exception(message, inner.orNull)
+case class ProviderAuthenticationException(message: String, inner: Option[Throwable]) extends Exception(message, inner.orNull)
+case class NetworkTimeoutException(message: String, inner: Option[Throwable]) extends Exception(message, inner.orNull)
+case class NetworkUnreachableException(message: String, inner: Option[Throwable]) extends Exception(message, inner.orNull)
