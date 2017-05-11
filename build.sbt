@@ -61,7 +61,7 @@ lazy val runner = (project in file("."))
     },
     libraryDependencies ++= Seq("org.specs2" %% "specs2-core" % "3.8.7" % Test),
     libraryDependencies ++= Seq("org.scalamock" %% "scalamock-scalatest-support" % "3.4.2" % Test),
-    libraryDependencies ++= Seq("com.signalvine" %% "integration-core" % "0.1.1"),
+    libraryDependencies ++= Seq("com.signalvine" %% "integration-core" % "0.1.2-SNAPSHOT"),
     libraryDependencies ++= Seq("net.codingwell" %% "scala-guice" % "4.1.0"),
     libraryDependencies ++= Seq("org.clapper" %% "classutil" % "1.1.1"),
     libraryDependencies ++= Seq("ch.qos.logback" % "logback-core" % "1.1.2", "ch.qos.logback" % "logback-classic" % "1.1.2"),
