@@ -28,7 +28,6 @@ class ResultSpec extends Specification with JsonMatchers {
     )
     val successResult: Result = SuccessResult(startTime, endTime, updated, imported, ignored, syncErrors)
     val failureResult: Result = FailureResult(startTime, endTime, failMessage, failDetails)
-
     "serialize SuccessResult into json with all the fields" >> {
       val js = Json.toJson(Seq(1, 2, 3, 4))
       val json = Json.toJson(successResult).toString
