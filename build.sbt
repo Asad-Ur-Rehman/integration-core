@@ -70,6 +70,7 @@ lazy val core = (project in file("."))
     libraryDependencies ++= Seq("com.typesafe.play" %% "play-json" % "2.5.9"),
     libraryDependencies ++= Seq("com.typesafe.play" %% "anorm" % "2.5.0"),
     libraryDependencies ++= Seq("org.specs2" %% "specs2-core" % "3.8.7" % Test),
+    libraryDependencies += "com.typesafe.play" %% "play-ws" % "2.5.13",
     libraryDependencies ++= Seq("org.specs2" %% "specs2-matcher-extra" % "3.8.7" % Test),
     libraryDependencies ++= Seq("org.scalamock" %% "scalamock-scalatest-support" % "3.4.2" % Test),
     libraryDependencies ++= Seq("net.codingwell" %% "scala-guice" % "4.1.0"),
