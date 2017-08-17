@@ -8,7 +8,7 @@ val isFinal = {
   }
 }
 
-lazy val runner = (project in file("."))
+lazy val providerFactory = (project in file("."))
   .settings(
     name := "provider-factory",
     organization := "com.signalvine",
