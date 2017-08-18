@@ -1,0 +1,62 @@
+pipeline {
+  agent {
+    label "automation"
+  }
+  triggers {
+    pollSCM('*/5 * * * *')
+  }
+
+  stages {
+    stage ("test") {
+      steps {
+        sh './ci/unit.sh'
+      }
+      post {
+        failure {
+          slackSend channel: '10pearls', color: 'danger', message: "integration-provider-factory unit tests failed on master (<${env.BUILD_URL}|Open>)"
+        }
+      }
+    }
+
+    stage ("build") {
+      steps {
+        sh 'rm -rf /target/*/*.jar'
+        sh 'sbt assembly'
+      }
+      post {
+        success {
+	  archiveArtifacts 'target/scala*/*.jar'
+	}
+        failure {
+          slackSend channel: '10pearls', color: 'danger', message: "integration-provider-factory build (<${env.BUILD_URL}|Open>)"
+        }
+      }
+    }
+
+    stage ("publish") {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'e432c41e-84c3-4519-a1fc-0e1d98267a91', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USER')]) {
+          sh '''
+	    release_number="1.$BUILD_NUMBER-$(git rev-parse HEAD | grep -Eo '^[0-9a-fA-F]{7}')"
+	    curl -v --upload-file "{$(ls -m target/scala*/*.jar | sed \'s/ //g\')}" -u $NEXUS_USER:$NEXUS_PASSWORD https://nexus.signalvine.com/repository//maven-releases/com/signalvine/integration-provider-factory/$release_number/integration-provider-factory-$release_number.jar
+	    aws s3 cp "$(ls -m target/scala*/*.jar)" s3://sv-mesos-resources/mesos-support/jars/integration-provider-factory-$release_number.jar
+	  '''
+        }
+      }
+      post {
+        failure {
+          slackSend channel: '10pearls', color: 'danger', message: "integration-provider-factory publish failed (<${env.BUILD_URL}|Open>)"
+        }
+      }
+    }
+  }
+  post {
+    failure {
+      slackSend channel: 'notifications', color: 'danger', message: 'integration-provider-factory build or deploy failed'
+    }
+
+    success {
+      slackSend channel: 'notifications', color: 'good', message: 'integration-provider-factory successfully built and deployed'
+    }
+  }
+}
