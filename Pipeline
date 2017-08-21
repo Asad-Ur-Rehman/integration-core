@@ -21,7 +21,7 @@ pipeline {
     stage ("build") {
       steps {
         sh 'rm -rf /target/*/*.jar'
-        if ($env.BRANCH_NAME == 'master') {
+        if (env.BRANCH_NAME == 'master') {
           sh 'sbt providerFactory/release --final'
         }
         else {
