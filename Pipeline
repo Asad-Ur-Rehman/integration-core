@@ -20,13 +20,15 @@ pipeline {
 
     stage ("build") {
       steps {
-        sh 'rm -rf /target/*/*.jar'
-        if (env.BRANCH_NAME == 'master') {
-          sh 'sbt core/release --final'
+      sh '''
+        rm -rf /target/*/*.jar
+        if ($env.BRANCH_NAME == 'master') {
+          sbt core/release --final
         }
         else {
-          sh 'sbt core/release'
+          sbt core/release
         }
+      '''
       }
       post {
         success {
