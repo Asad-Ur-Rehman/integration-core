@@ -21,7 +21,7 @@ pipeline {
     stage ("build") {
       steps {
         sh 'rm -rf /target/*/*.jar'
-        if (env.BRANCH == 'master')
+        if (${env.BRANCH_NAME} == 'master')
           sh 'sbt core/release --final'
         else
           sh 'sbt core/release'
