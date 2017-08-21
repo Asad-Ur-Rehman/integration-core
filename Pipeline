@@ -21,14 +21,17 @@ pipeline {
     stage ("build") {
       steps {
         sh 'rm -rf /target/*/*.jar'
-        sh 'sbt assembly'
+        if (env.BRANCH == 'master')
+          sh 'sbt providerFactory/release --final'
+        else
+          sh 'sbt providerFactory/release'
       }
       post {
         success {
 	  archiveArtifacts 'target/scala*/*.jar'
 	}
         failure {
-          slackSend channel: '10pearls', color: 'danger', message: "integration-provider-factory build (<${env.BUILD_URL}|Open>)"
+          slackSend channel: '10pearls', color: 'danger', message: "integration-provider-factory build failed (<${env.BUILD_URL}|Open>)"
         }
       }
     }
