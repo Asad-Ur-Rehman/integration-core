@@ -20,7 +20,7 @@ pipeline {
 
     stage ("build") {
       steps {
-        sshagent('96261e0c-0182-4871-9245-633f7d3ab357') {
+        sshagent(['96261e0c-0182-4871-9245-633f7d3ab357']) {
           sh '''
             rm -rf /target/*/*.jar
             if ($env.BRANCH_NAME == 'master'); then
