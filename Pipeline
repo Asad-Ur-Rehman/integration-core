@@ -11,8 +11,10 @@ pipeline {
 
   stages {
     stage ("checkout") {
-      dir("integration-provider-factory") {
-        checkout([$class: 'GitSCM', branches: [[name: 'master'], [name: 'staging']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'LocalBranch', localBranch: '**']], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '96261e0c-0182-4871-9245-633f7d3ab357', url: 'git@github.com:signalvine/integration-provider-factory.git']]])
+      steps {
+        dir("integration-provider-factory") {
+          checkout([$class: 'GitSCM', branches: [[name: 'master'], [name: 'staging']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'LocalBranch', localBranch: '**']], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '96261e0c-0182-4871-9245-633f7d3ab357', url: 'git@github.com:signalvine/integration-provider-factory.git']]])
+        }
       }
     }
 
