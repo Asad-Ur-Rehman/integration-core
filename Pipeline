@@ -23,9 +23,9 @@ pipeline {
         sh '''
           rm -rf /target/*/*.jar
           if ($env.BRANCH_NAME == 'master'); then
-            sbt providerFactory/releaseProcess --final
+            sbt release --final
           else
-            sbt providerFactory/releaseProcess
+            sbt release
           fi
         '''
       }
