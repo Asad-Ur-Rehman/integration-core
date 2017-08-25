@@ -37,8 +37,8 @@ object NullProvider extends IntegrationProvider {
     val signalVineSection = conf.signalVine
     val mapSection = conf.map
     val targetConfig = conf.targetConfig.as[JsObject] ++ Json.obj("lastProcessedId" -> "777")
-    val syncError1 = SyncError(UUID.gen[Participant], "Something unexpected happened", "Something unexpected happened")
-    val syncError2 = SyncError(UUID.gen[Participant], "Something unexpected happened again", "Something unexpected happened again")
+    val syncError1 = SyncError(Some(UUID.gen[Participant]),None, None, None, "Something unexpected happened", None)
+    val syncError2 = SyncError(Some(UUID.gen[Participant]),None, None, None, "Something unexpected happened again", None)
     val syncErrors = Seq[SyncError](
       syncError1,
       syncError2
