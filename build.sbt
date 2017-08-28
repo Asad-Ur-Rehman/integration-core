@@ -29,6 +29,8 @@ lazy val providerFactory = (project in file("."))
         }
     },
 
+    releaseIgnoreUntrackedFiles := true,
+
     releaseNextVersion := { ver =>
       isFinal match {
         case true => Version(ver).map(_.bump.string).getOrElse(versionFormatError)
