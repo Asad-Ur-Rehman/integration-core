@@ -4,9 +4,9 @@ import sbtrelease.Version
 import sbtrelease.versionFormatError
 
 val isFinal = {
-  Option(System.getProperty("final")).getOrElse("false") match {
-    case "false" => false
-    case _ => true
+  Option(System.getProperty("final")) match {
+    case Some("true") => true
+    case _ => false
   }
 }
 
