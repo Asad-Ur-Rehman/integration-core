@@ -33,6 +33,7 @@ pipeline {
       steps {
         sshagent(['63730a8e-8555-4018-8a30-6163e5d6c8e8']) {
           sh '''
+	    cd integration-provider-factory
             rm -rf /target/*/*.jar
             if [[ $env.BRANCH_NAME == 'master' ]]; then
               sbt "release with-defaults" -Dfinal=true
