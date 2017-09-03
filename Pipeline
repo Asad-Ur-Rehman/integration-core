@@ -31,13 +31,13 @@ pipeline {
 
     stage ("build") {
       steps {
-        sshagent(['96261e0c-0182-4871-9245-633f7d3ab357']) {
+        sshagent(['63730a8e-8555-4018-8a30-6163e5d6c8e8']) {
           sh '''
             rm -rf /target/*/*.jar
-            if ($env.BRANCH_NAME == 'master'); then
-              sbt release --final
+            if [[ $env.BRANCH_NAME == 'master' ]]; then
+              sbt "release with-defaults" -Dfinal=true
             else
-              sbt release
+              sbt "release with-defaults"
             fi
           '''
         }
@@ -48,23 +48,6 @@ pipeline {
 	}
         failure {
           slackSend channel: '10pearls', color: 'danger', message: "integration-provider-factory build failed (<${env.BUILD_URL}|Open>)"
-        }
-      }
-    }
-
-    stage ("publish") {
-      steps {
-        withCredentials([usernamePassword(credentialsId: 'e432c41e-84c3-4519-a1fc-0e1d98267a91', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USER')]) {
-          sh '''
-	    release_number="1.$BUILD_NUMBER-$(git rev-parse HEAD | grep -Eo '^[0-9a-fA-F]{7}')"
-	    curl -v --upload-file "{$(ls -m target/scala*/*.jar | sed \'s/ //g\')}" -u $NEXUS_USER:$NEXUS_PASSWORD https://nexus.signalvine.com/repository//maven-releases/com/signalvine/integration-provider-factory/$release_number/integration-provider-factory-$release_number.jar
-	    aws s3 cp "$(ls -m target/scala*/*.jar)" s3://sv-mesos-resources/mesos-support/jars/integration-provider-factory-$release_number.jar
-	  '''
-        }
-      }
-      post {
-        failure {
-          slackSend channel: '10pearls', color: 'danger', message: "integration-provider-factory publish failed (<${env.BUILD_URL}|Open>)"
         }
       }
     }
