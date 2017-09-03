@@ -58,11 +58,11 @@ pipeline {
   }
   post {
     failure {
-      slackSend channel: 'notifications', color: 'danger', message: 'integration-provider-factory build or deploy failed'
+      slackSend channel: 'notifications', color: 'danger', message: 'integration-provider-factory build or publish failed'
     }
 
     success {
-      slackSend channel: 'notifications', color: 'good', message: 'integration-provider-factory successfully built and deployed'
+      slackSend channel: 'notifications', color: 'good', message: 'integration-provider-factory successfully built and published'
     }
   }
 }
