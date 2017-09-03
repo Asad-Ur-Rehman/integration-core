@@ -20,7 +20,7 @@ pipeline {
 
     stage ("test") {
       steps {
-        sh './ci/unit.sh'
+        sh './integration-provider-factory/ci/unit.sh'
       }
       post {
         failure {
