@@ -35,7 +35,7 @@ pipeline {
           sh '''
 	    cd integration-provider-factory
             rm -rf /target/*/*.jar
-            if [[ $env.BRANCH_NAME == 'master' ]]; then
+            if [[ $BRANCH_NAME == 'master' ]]; then
               sbt "release with-defaults" -Dfinal=true
             else
               sbt "release with-defaults"
