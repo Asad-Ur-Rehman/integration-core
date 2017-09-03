@@ -48,7 +48,7 @@ pipeline {
       }
       post {
         success {
-	  archiveArtifacts 'target/scala*/*.jar'
+	  archiveArtifacts 'integration-provider-factory/target/scala*/*.jar'
 	}
         failure {
           slackSend channel: '10pearls', color: 'danger', message: "integration-provider-factory build failed (<${env.BUILD_URL}|Open>)"
