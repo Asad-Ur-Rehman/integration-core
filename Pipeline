@@ -37,6 +37,8 @@ pipeline {
 	    git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
             git config branch.$BRANCH_NAME.remote origin
             git config branch.$BRANCH_NAME.merge refs/heads/$BRANCH_NAME
+	    git config --global user.name "Jenkins"
+	    git config --global user.email "jenkins@signalvine.com"
             rm -rf /target/*/*.jar
             if [ "$BRANCH_NAME" = "OPS-599" ]; then
               sbt "release with-defaults" -Dfinal=true
