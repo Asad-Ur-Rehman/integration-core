@@ -38,7 +38,7 @@ pipeline {
             git config branch.$BRANCH_NAME.remote origin
             git config branch.$BRANCH_NAME.merge refs/heads/$BRANCH_NAME
             rm -rf /target/*/*.jar
-            if [[ "$BRANCH_NAME" = "OPS-599" ]]; then
+            if [ "$BRANCH_NAME" = "OPS-599" ]; then
               sbt "release with-defaults" -Dfinal=true
             else
               sbt "release with-defaults"
