@@ -40,7 +40,7 @@ pipeline {
 	    git config --global user.name "Jenkins"
 	    git config --global user.email "jenkins@signalvine.com"
             rm -rf /target/*/*.jar
-            if [ "$BRANCH_NAME" = "master" ]; then
+            if [ "$BRANCH_NAME" = "OPS-599" ]; then
               sbt "release with-defaults" -Dfinal=true
             else
               sbt "release with-defaults"
