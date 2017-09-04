@@ -31,7 +31,7 @@ pipeline {
 
     stage ("build") {
       steps {
-        sshagent(['63730a8e-8555-4018-8a30-6163e5d6c8e8']) {
+        sshagent(['96261e0c-0182-4871-9245-633f7d3ab357']) {
           sh '''	
 	    cd integration-provider-factory
 	    git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
