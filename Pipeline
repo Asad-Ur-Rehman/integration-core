@@ -2,68 +2,84 @@ pipeline {
   agent {
     label "automation"
   }
+  options {
+    skipDefaultCheckout()
+  }
   triggers {
     pollSCM('*/5 * * * *')
   }
 
   stages {
-    stage ("test") {
+    stage ("checkout") {
       steps {
-        sh './ci/unit.sh'
+        dir("integration-core") {
+          checkout([$class: 'GitSCM', branches: [[name: env.BRANCH_NAME]], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'UserExclusion', excludedUsers: 'jenkins@signalvine.com'], [$class: 'LocalBranch', localBranch: env.BRANCH_NAME]], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '96261e0c-0182-4871-9245-633f7d3ab357', url: 'git@github.com:signalvine/integration-core.git']]])
+        }
       }
       post {
         failure {
-          slackSend channel: '10pearls', color: 'danger', message: "integration-core unit tests failed on master (<${env.BUILD_URL}|Open>)"
+          slackSend channel: '10pearls', color: 'danger', message: "integration-core checkout failed on ${env.BRANCH_NAME} (<${env.BUILD_URL}|Open>)"
+        }
+      }
+    }
+
+    stage ("test") {
+      steps {
+        sh './integration-core/ci/unit.sh'
+      }
+      post {
+        failure {
+          slackSend channel: '10pearls', color: 'danger', message: "integration-core unit tests failed on ${env.BRANCH_NAME} (<${env.BUILD_URL}|Open>)"
         }
       }
     }
 
     stage ("build") {
       steps {
-      sh '''
-        rm -rf /target/*/*.jar
-        if ($env.BRANCH_NAME == 'master') {
-          sbt release --final
+        sshagent(['63730a8e-8555-4018-8a30-6163e5d6c8e8']) {
+	script {
+		try {
+		  sh script:'''#!/bin/bash
+		    cd integration-core	    
+		    rm -rf /target/*/*.jar BUILD_LOG
+		    if [ "$BRANCH_NAME" = 'master' ]; then
+		      git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
+		      git config branch.$BRANCH_NAME.remote origin
+		      git config branch.$BRANCH_NAME.merge refs/heads/$BRANCH_NAME
+		      git config --global user.name "Jenkins"
+		      git config --global user.email "jenkins@signalvine.com"
+                      sbt "release with-defaults" -Dfinal=true > BUILD_LOG; BUILD_RESULT=$?; cat BUILD_LOG
+		    else
+		      sbt package > BUILD_LOG; BUILD_RESULT=$?; cat BUILD_LOG
+		    fi
+                    if [ "$BUILD_RESULT" = "1" ]; then
+                      exit 1
+                    fi
+		  ''', returnStdout: true
+		}
+		catch (exc) {
+		    def RESULT = readFile "BUILD_LOG"
+		    slackSend channel: '10pearls', color: 'danger', message: "*integration-core failed on ${env.BRANCH_NAME} (<${env.BUILD_URL}|Open>)*\n```\n${RESULT}\n```"
+		    currentBuild.result = 'FAILURE'
+		    return
+		}
+	    }
         }
-        else {
-          sbt release
-        }
-      '''
       }
       post {
         success {
-	  archiveArtifacts 'target/scala*/*.jar'
+	  archiveArtifacts 'integration-core/target/scala*/*.jar'
 	}
-        failure {
-          slackSend channel: '10pearls', color: 'danger', message: "integration-core build failed (<${env.BUILD_URL}|Open>)"
-        }
-      }
-    }
-
-    stage ("publish") {
-      steps {
-        withCredentials([usernamePassword(credentialsId: 'e432c41e-84c3-4519-a1fc-0e1d98267a91', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USER')]) {
-          sh '''
-	    release_number="1.$BUILD_NUMBER-$(git rev-parse HEAD | grep -Eo '^[0-9a-fA-F]{7}')"
-	    curl -v --upload-file "{$(ls -m target/scala*/*.jar | sed \'s/ //g\')}" -u $NEXUS_USER:$NEXUS_PASSWORD https://nexus.signalvine.com/repository//maven-releases/com/signalvine/integration-core/$release_number/integration-core-$release_number.jar
-	    aws s3 cp "$(ls -m target/scala*/*.jar)" s3://sv-mesos-resources/mesos-support/jars/integration-core-$release_number.jar
-	  '''
-        }
-      }
-      post {
-        failure {
-          slackSend channel: '10pearls', color: 'danger', message: "integration-core publish failed (<${env.BUILD_URL}|Open>)"
-        }
       }
     }
   }
   post {
     failure {
-      slackSend channel: 'notifications', color: 'danger', message: 'integration-core build or deploy failed'
+      slackSend channel: 'notifications', color: 'danger', message: 'integration-core build or publish failed'
     }
 
     success {
-      slackSend channel: 'notifications', color: 'good', message: 'integration-core successfully built and deployed'
+      slackSend channel: 'notifications', color: 'good', message: 'integration-core successfully built and published'
     }
   }
 }
