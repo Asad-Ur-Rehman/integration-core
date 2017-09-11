@@ -69,7 +69,7 @@ pipeline {
 		  ''', returnStdout: true
 		}
 		catch (exc) {
-		    def RESULT = readFile "BUILD_LOG"
+		    def RESULT = readFile "integration-core/BUILD_LOG"
 		    slackSend channel: '10pearls', color: 'danger', message: "*integration-core failed on ${env.BRANCH_NAME} (<${env.BUILD_URL}|Open>)*\n```\n${RESULT}\n```"
 		    currentBuild.result = 'FAILURE'
 		    return
