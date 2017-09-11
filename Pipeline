@@ -5,6 +5,9 @@ pipeline {
   options {
     skipDefaultCheckout()
   }
+  environment {
+    gitAuthor = ""
+  }
   triggers {
     pollSCM('*/5 * * * *')
   }
@@ -14,6 +17,9 @@ pipeline {
       steps {
         dir("integration-core") {
           checkout([$class: 'GitSCM', branches: [[name: env.BRANCH_NAME]], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'UserExclusion', excludedUsers: 'jenkins@signalvine.com'], [$class: 'LocalBranch', localBranch: env.BRANCH_NAME]], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '96261e0c-0182-4871-9245-633f7d3ab357', url: 'git@github.com:signalvine/integration-core.git']]])
+	  script {
+	    gitAuthor = sh (script: 'git show --format="%aE" HEAD | head -n1', returnStdout: true).trim()
+	  }
         }
       }
       post {
@@ -24,6 +30,7 @@ pipeline {
     }
 
     stage ("test") {
+      when { expression { gitAuthor != 'jenkins@signalvine.com' } }
       steps {
         sh './integration-core/ci/unit.sh'
       }
@@ -35,6 +42,7 @@ pipeline {
     }
 
     stage ("build") {
+      when { expression { gitAuthor != 'jenkins@signalvine.com' } }
       steps {
         sshagent(['63730a8e-8555-4018-8a30-6163e5d6c8e8']) {
 	script {
