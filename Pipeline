@@ -48,7 +48,10 @@ pipeline {
 	script {
 		try {
 		  sh script:'''#!/bin/bash
-		    cd integration-core	    
+		    set -e
+		  
+		    cd integration-core
+		    
 		    rm -rf /target/*/*.jar BUILD_LOG
 		    if [ "$BRANCH_NAME" = 'master' ]; then
 		      git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
