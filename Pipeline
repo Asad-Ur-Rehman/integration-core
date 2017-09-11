@@ -49,6 +49,7 @@ pipeline {
 		try {
 		  sh script:'''#!/bin/bash
 		    set -e
+		    set -x
 		  
 		    cd integration-core
 		    
