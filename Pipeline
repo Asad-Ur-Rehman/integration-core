@@ -32,7 +32,7 @@ pipeline {
     stage ("test") {
       when { expression { gitAuthor != 'jenkins@signalvine.com' } }
       steps {
-        sh './integration-core/ci/unit.sh'
+        sh 'cd ./integration-core/ci/ && ./unit.sh'
       }
       post {
         failure {
