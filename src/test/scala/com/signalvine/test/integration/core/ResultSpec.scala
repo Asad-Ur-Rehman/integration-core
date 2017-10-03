@@ -18,8 +18,8 @@ class ResultSpec extends Specification with JsonMatchers {
     val updated = 100
     val imported = 105
     val ignored = 110
-    val syncError1 =  SyncError(UUID.gen[Participant], "Something unexpected happened", "Something unexpected happened")
-    val syncError2 =  SyncError(UUID.gen[Participant], "Something unexpected happened again", "Something unexpected happened again")
+    val syncError1 =  SyncError(Some(UUID.gen[Participant]), Some("test"), Some(1), Some(1), "Something unexpected happened", Some("Something unexpected happened"))
+    val syncError2 =  SyncError(Some(UUID.gen[Participant]), Some("test"), Some(1), Some(1), "Something unexpected happened again", Some("Something unexpected happened again"))
     val failMessage="Something went wrong"
     val failDetails="Line 177"
     val syncErrors = Seq[SyncError](
@@ -28,7 +28,6 @@ class ResultSpec extends Specification with JsonMatchers {
     )
     val successResult: Result = SuccessResult(startTime, endTime, updated, imported, ignored, syncErrors)
     val failureResult: Result = FailureResult(startTime, endTime, failMessage, failDetails)
-
     "serialize SuccessResult into json with all the fields" >> {
       val js = Json.toJson(Seq(1, 2, 3, 4))
       val json = Json.toJson(successResult).toString
@@ -39,8 +38,8 @@ class ResultSpec extends Specification with JsonMatchers {
       json must /("ignored", ignored)
       json must beSyncErrorListOf(anObjectWith(
         "participantId" -> syncError1.participantId.toString,
-        "message" -> syncError1.message,
-        "details" -> syncError1.details
+        "msg" -> syncError1.message,
+        "details" -> syncError1.details.get
       ))
     }
     "serialize FailureResult into json with all the fields" >> {
@@ -61,7 +60,7 @@ class ResultSpec extends Specification with JsonMatchers {
            | "syncErrors": [${syncErrors.map( e =>
               s"""{
                   |"participantId": "${e.participantId.toString}",
-                  |"message": "${e.message}",
+                  |"msg": "${e.message}",
                   |"details": "${e.details}"
               }""".stripMargin).mkString(",")}]
         }""".stripMargin)
