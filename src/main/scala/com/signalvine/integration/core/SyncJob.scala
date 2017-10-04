@@ -11,6 +11,8 @@ case class SyncJob(integrationId: UUID[Integration],
                    programId: UUID[Program],
                    accountId: UUID[Account],
                    jobConfiguration: JobConfiguration,
+                   name: String,
+                   description: Option[String],
                    nextRunTime: DateTime,
                    schedule: String,
                    eventType: Option[EventType] = Option.empty[EventType])
@@ -23,6 +25,8 @@ object SyncJob {
       "programId" -> o.programId,
       "accountId" -> o.accountId,
       "jobConfiguration" -> o.jobConfiguration,
+      "name" -> o.name,
+      "description" -> o.description,
       "nextRunTime" -> o.nextRunTime,
       "schedule" -> o.schedule
     )
@@ -33,6 +37,8 @@ object SyncJob {
       (__ \ 'programId).read[UUID[Program]] and
       (__ \ 'accountId).read[UUID[Account]] and
       (__ \ 'jobConfiguration).read[JobConfiguration] and
+      (__ \ 'name).read[String] and
+      (__ \ 'description).readNullable[String] and
       (__ \ 'nextRunTime).read[DateTime] and
       (__ \ 'schedule).read[String] and
       (__ \ 'eventType).read(Option.empty[EventType])

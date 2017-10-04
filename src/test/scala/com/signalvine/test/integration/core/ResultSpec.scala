@@ -37,7 +37,10 @@ class ResultSpec extends Specification with JsonMatchers {
       json must /("imported", imported)
       json must /("ignored", ignored)
       json must beSyncErrorListOf(anObjectWith(
-        "participantId" -> syncError1.participantId.toString,
+        "participantId" -> syncError1.participantId.get.toString,
+        "colname" -> "test",
+        "row" -> 1,
+        "col" -> 1,
         "msg" -> syncError1.message,
         "details" -> syncError1.details.get
       ))
@@ -51,7 +54,7 @@ class ResultSpec extends Specification with JsonMatchers {
     }
     "Deserialize into SuccessResult with all the fields" >> {
       val json = Json.parse(
-        s""" {
+        s"""{
            | "startTime": "${startTime.toString}",
            | "endTime": "${endTime.toString}",
            | "updated": ${updated.toString},
@@ -59,11 +62,15 @@ class ResultSpec extends Specification with JsonMatchers {
            | "imported":${imported.toString},
            | "syncErrors": [${syncErrors.map( e =>
               s"""{
-                  |"participantId": "${e.participantId.toString}",
+                  |"participantId": "${e.participantId.get.toString}",
+                  |"colname": "${e.colName.get.toString}",
+                  |"row": ${e.row.get.toString},
+                  |"col": ${e.column.get.toString},
                   |"msg": "${e.message}",
-                  |"details": "${e.details}"
+                  |"details": "${e.details.get}"
               }""".stripMargin).mkString(",")}]
         }""".stripMargin)
+
       val o: Result = Json.fromJson[Result](json).get
       o.asInstanceOf[SuccessResult].startTime mustEqual startTime
       o.asInstanceOf[SuccessResult].endTime mustEqual endTime
