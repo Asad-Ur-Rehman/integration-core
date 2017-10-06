@@ -32,14 +32,20 @@ pipeline {
     stage ("test") {
       when { expression { gitAuthor != 'jenkins@signalvine.com' } }
       steps {
-        sh '''
+        withCredentials([usernamePassword(credentialsId: '834d8d90-f1fa-4610-8499-c0eadf743be2', passwordVariable: 'NEXUS_REPO_PASSWORD', usernameVariable: 'NEXUS_REPO_USER')]) {
+        sh '''#!/bin/bash
+	  set -e
+	  set -x
+	  
           export INTEGRATION_DB_HOST=127.0.0.1
           export INTEGRATION_DB_PORT=5432
 	  export INTEGRATION_DB_NAME=test
           export INTEGRATION_DB_USER=signalvine
           export INTEGRATION_DB_PASSWORD=signalvine
-	  cd ./integration-core/ci/ && ./unit.sh
+	  cd ./integration-core/ci/
+	  ./unit.sh
 	'''
+	}
       }
       post {
         failure {
@@ -52,42 +58,34 @@ pipeline {
       when { expression { gitAuthor != 'jenkins@signalvine.com' } }
       steps {
         sshagent(['63730a8e-8555-4018-8a30-6163e5d6c8e8']) {
-	script {
-		try {
+	  withCredentials([usernamePassword(credentialsId: '834d8d90-f1fa-4610-8499-c0eadf743be2', passwordVariable: 'NEXUS_REPO_PASSWORD', usernameVariable: 'NEXUS_REPO_USER')]) {
 		  sh script:'''#!/bin/bash
 		    set -e
 		    set -x
 		  
 		    cd integration-core
 		    
-		    rm -rf /target/*/*.jar BUILD_LOG
+		    rm -rf /target/*/*.jar
 		    if [ "$BRANCH_NAME" = 'master' ]; then
 		      git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
 		      git config branch.$BRANCH_NAME.remote origin
 		      git config branch.$BRANCH_NAME.merge refs/heads/$BRANCH_NAME
 		      git config --global user.name "Jenkins"
 		      git config --global user.email "jenkins@signalvine.com"
-                      sbt "release with-defaults" -Dfinal=true > BUILD_LOG; BUILD_RESULT=$?; cat BUILD_LOG
+                      sbt "release with-defaults skip-tests" -Dfinal=true
 		    else
-		      sbt package > BUILD_LOG; BUILD_RESULT=$?; cat BUILD_LOG
+		      sbt package
 		    fi
-                    if [ "$BUILD_RESULT" = "1" ]; then
-                      exit 1
-                    fi
 		  ''', returnStdout: true
-		}
-		catch (exc) {
-		    def RESULT = readFile "integration-core/BUILD_LOG"
-		    slackSend channel: '10pearls', color: 'danger', message: "*integration-core failed on ${env.BRANCH_NAME} (<${env.BUILD_URL}|Open>)*\n```\n${RESULT}\n```"
-		    currentBuild.result = 'FAILURE'
-		    return
-		}
-	    }
+	  }
         }
       }
       post {
         success {
 	  archiveArtifacts 'integration-core/target/scala*/*.jar'
+	}
+	failure {
+	  slackSend channel: '10pearls', color: 'danger', message: "*integration-core build/publish failed on ${env.BRANCH_NAME} (<${env.BUILD_URL}|Open>)*"
 	}
       }
     }

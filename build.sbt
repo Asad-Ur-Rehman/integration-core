@@ -10,6 +10,18 @@ val isFinal = {
   }
 }
 
+val defaultUser = "NEXUS_REPO_USER"
+val defaultPassword = "NEXUS_REPO_PASSWORD"
+val nexusUser = sys.env.getOrElse(
+  key = "NEXUS_REPO_USER",
+  default = defaultUser)
+val nexusPassword = sys.env.getOrElse(
+  key = "NEXUS_REPO_PASSWORD",
+  default = defaultPassword)
+val nexusHost = sys.env.getOrElse(
+  key = "NEXUS_REPO_HOST_NO_PROTOCOL",
+  default = "nexus.signalvine.com")
+
 lazy val commonSettings = Seq(
   organization := "com.signalvine",
   scalaVersion := "2.11.8"
@@ -26,7 +38,7 @@ lazy val core = (project in file("."))
       else
         Some("maven-releases"  at nexus + "repository/maven-releases")
     },
-    credentials += Credentials(Path.userHome / ".sbt" / ".credentials"),
+    credentials += Credentials("Sonatype Nexus Repository Manager", nexusHost, nexusUser, nexusPassword),
     publishMavenStyle := true,
     releaseVersion := {
       ver =>
