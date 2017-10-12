@@ -35,7 +35,7 @@ lazy val core = (project in file("."))
           case false => Version(ver).map(_.asSnapshot.string).getOrElse(versionFormatError)
         }
     },
-    
+
     releaseIgnoreUntrackedFiles := true,
 
     releaseNextVersion := { ver =>
@@ -60,11 +60,7 @@ lazy val core = (project in file("."))
         case false => Seq[ReleaseStep](
           inquireVersions,
           setReleaseVersion,
-          commitReleaseVersion,
-          publishArtifacts,
-          setNextVersion,
-          commitNextVersion,
-          pushChanges
+          publishArtifacts
         )
       }
     },
