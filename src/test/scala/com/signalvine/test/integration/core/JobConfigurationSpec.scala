@@ -24,7 +24,6 @@ class JobConfigurationSpec extends Specification with JsonMatchers {
     )
     val signalVineSection = new SignalVineSection(
       UUID.fromRaw[Program](UUID.genRaw()),
-      url,
       token,
       secret,
       Seq[Field](
@@ -40,6 +39,32 @@ class JobConfigurationSpec extends Specification with JsonMatchers {
       (/("signalVine")/("fields")).andHave(allOf(fields : _*))
 
     "serialize into JSON with all fields provided" >> {
+      val o = new JobConfiguration(identitySection, signalVineSection, mapSection, targetConfig)
+      val json = Json.toJson(o)(JobConfiguration.jobConfigurationWriteWithTokenSecret).toString
+
+      json must /("identity", anObjectWith(
+        "providerId" -> identitySection.providerId,
+        "created" -> identitySection.created.toString,
+        "modified" -> identitySection.modified.toString,
+        "createdBy" -> identitySection.createdBy,
+        "notes" -> identitySection.notes
+      ))
+
+      Result.foreach(1 to mapSection.in.size) { i =>
+        json must /("map")/("in")/(s"in$i", mapSection.in(s"in$i"))
+      }
+
+      Result.foreach(1 to mapSection.out.size) { o =>
+        json must /("map")/("out")/(s"out$o", mapSection.out(s"out$o"))
+      }
+
+      json must /("signalVine")/("programId", signalVineSection.programId.toString)
+      json must /("signalVine")/("token", signalVineSection.token)
+      json must /("signalVine")/("secret", signalVineSection.secret)
+      json must beAFieldListOf(anObjectWith("name" -> "Foo", "type" -> "Bar"))
+    }
+
+    "serialize into JSON with all fields provided without token and secret" >> {
       val o = new JobConfiguration(identitySection, signalVineSection, mapSection, targetConfig)
       val json = Json.toJson(o).toString
 
@@ -60,9 +85,6 @@ class JobConfigurationSpec extends Specification with JsonMatchers {
       }
 
       json must /("signalVine")/("programId", signalVineSection.programId.toString)
-      json must /("signalVine")/("url", signalVineSection.url)
-      json must /("signalVine")/("token", signalVineSection.token)
-      json must /("signalVine")/("secret", signalVineSection.secret)
       json must beAFieldListOf(anObjectWith("name" -> "Foo", "type" -> "Bar"))
     }
 
@@ -117,7 +139,6 @@ class JobConfigurationSpec extends Specification with JsonMatchers {
       }
 
       o.signalVine.programId mustEqual signalVineSection.programId
-      o.signalVine.url mustEqual signalVineSection.url
       o.signalVine.token mustEqual signalVineSection.token
       o.signalVine.secret mustEqual signalVineSection.secret
       Result.foreach(signalVineSection.fields.indices) { i =>

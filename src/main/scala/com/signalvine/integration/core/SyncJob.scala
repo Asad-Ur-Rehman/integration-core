@@ -32,6 +32,19 @@ object SyncJob {
     )
   }
 
+   val syncJobWritesWithTokenAndSecret: Writes[SyncJob] = new Writes[SyncJob] {
+    override def writes(o: SyncJob): JsValue = Json.obj(
+      "integrationId" -> o.integrationId,
+      "programId" -> o.programId,
+      "accountId" -> o.accountId,
+      "jobConfiguration" -> Json.toJson[JobConfiguration](o.jobConfiguration)(JobConfiguration.jobConfigurationWriteWithTokenSecret),
+      "name" -> o.name,
+      "description" -> o.description,
+      "nextRunTime" -> o.nextRunTime,
+      "schedule" -> o.schedule
+    )
+  }
+
   implicit val syncJobReads: Reads[SyncJob] = (
     (__ \ 'integrationId).read[UUID[Integration]] and
       (__ \ 'programId).read[UUID[Program]] and
