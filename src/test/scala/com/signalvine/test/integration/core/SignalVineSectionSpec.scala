@@ -13,7 +13,6 @@ class SignalVineSectionSpec extends Specification with JsonMatchers {
       new Field("Baz", "Hal")
     )
     val programId = UUID.gen[Program]()
-    val url = "https://foo.com"
     val secret = "1234-1234-1234-12345678-123456789012"
     val token = "1234"
     def anObjectWith(fields: (String, Matcher[JsonType])*): Matcher[String] =
@@ -23,13 +22,21 @@ class SignalVineSectionSpec extends Specification with JsonMatchers {
       /("fields").andHave(allOf(fields: _*))
 
     "serialize into JSON with all fields provided" >> {
-      val o = new SignalVineSection(programId, url, token, secret, fields)
+      val o = new SignalVineSection(programId, token, secret, fields)
+      val json = Json.toJson(o)(SignalVineSection.signalVineSectionWritesWithTokenSecret).toString
+
+      json must /("programId", programId.toString)
+      json must /("token", token)
+      json must /("secret", secret)
+      json must beAFieldListOf(anObjectWith("name" -> "Foo", "type" -> "Bar"))
+      json must beAFieldListOf(anObjectWith("name" -> "Baz", "type" -> "Hal"))
+    }
+
+    "serialize into JSON with all fields provided except token and secret" >> {
+      val o = new SignalVineSection(programId, token, secret, fields)
       val json = Json.toJson(o).toString
 
       json must /("programId", programId.toString)
-      json must /("url", url)
-      json must /("token", token)
-      json must /("secret", secret)
       json must beAFieldListOf(anObjectWith("name" -> "Foo", "type" -> "Bar"))
       json must beAFieldListOf(anObjectWith("name" -> "Baz", "type" -> "Hal"))
     }
@@ -38,7 +45,6 @@ class SignalVineSectionSpec extends Specification with JsonMatchers {
       val json = Json.parse(
         s"""{
             |  "programId": "${programId.toString}",
-            |  "url":"$url",
             |  "token":"$token",
             |  "secret":"$secret",
             |  "fields": [
@@ -48,7 +54,6 @@ class SignalVineSectionSpec extends Specification with JsonMatchers {
       val o = Json.fromJson[SignalVineSection](json).get
 
       o.programId mustEqual programId
-      o.url mustEqual url
       o.token mustEqual token
       o.secret mustEqual secret
       Result.foreach(fields.indices) { i =>
