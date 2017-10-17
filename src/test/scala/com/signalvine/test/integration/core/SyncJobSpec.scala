@@ -41,7 +41,6 @@ class SyncJobSpec extends Specification with JsonMatchers {
     )
     val signalVineSection = new SignalVineSection(
       UUID.fromRaw[Program](UUID.genRaw()),
-      url,
       token,
       secret,
       Seq[Field](
@@ -53,9 +52,10 @@ class SyncJobSpec extends Specification with JsonMatchers {
 
     val nextRunTime = DateTime.now()
     val schedule = "schedule"
+    val name = "SomeText"
     "serialize into JSON with all fields provided" >> {
-      val o = new SyncJob(integrationId, programId, accountId, jobConfiguration, nextRunTime, schedule, Some(IntegrationStarted))
-      val json = Json.toJson(o).toString
+      val o = new SyncJob(integrationId, programId, accountId, jobConfiguration,"SomeText",Some("SomeDescription"), nextRunTime, schedule, Some(IntegrationStarted))
+      val json = Json.toJson(o)(SyncJob.syncJobWritesWithTokenAndSecret).toString
       json must /("integrationId", integrationId.toString)
       json must /("programId", programId.toString)
       json must /("accountId", accountId.toString)
@@ -68,7 +68,6 @@ class SyncJobSpec extends Specification with JsonMatchers {
       )
       json must haveObject("jobConfiguration",
         haveObject("signalVine", /("programId", signalVineSection.programId.toString)) and
-          haveObject("signalVine", /("url", signalVineSection.url)) and
           haveObject("signalVine", /("token", signalVineSection.token)) and
           haveObject("signalVine", /("secret", signalVineSection.secret))
 
@@ -84,6 +83,36 @@ class SyncJobSpec extends Specification with JsonMatchers {
       }
       json must /("nextRunTime", nextRunTime.toString)
       json must /("schedule", schedule)
+      json must /("name", name)
+    }
+
+    "serialize into JSON with all fields provided without token and secret in SignalVine section" >> {
+      val o = new SyncJob(integrationId, programId, accountId, jobConfiguration,"SomeText",Some("SomeDescription"), nextRunTime, schedule, Some(IntegrationStarted))
+      val json = Json.toJson(o).toString
+      json must /("integrationId", integrationId.toString)
+      json must /("programId", programId.toString)
+      json must /("accountId", accountId.toString)
+      json must haveObject("jobConfiguration",
+        haveObject("identity", /("providerId", identitySection.providerId)) and
+            haveObject("identity", /("modified", identitySection.modified.toString)) and
+            haveObject("identity", /("created", identitySection.created.toString)) and
+            haveObject("identity", /("createdBy", identitySection.createdBy.toString)) and
+            haveObject("identity", /("notes", identitySection.notes))
+      )
+      json must haveObject("jobConfiguration",
+        haveObject("signalVine", /("programId", signalVineSection.programId.toString))
+      )
+      json must beAFieldListOf(anObjectWith("name" -> "Foo", "type" -> "Bar"))
+
+      Result.foreach(1 to mapSection.in.size) { i =>
+        json must /("jobConfiguration") / ("map") / ("in") / (s"in$i", mapSection.in(s"in$i"))
+      }
+      Result.foreach(1 to mapSection.out.size) { o =>
+        json must /("jobConfiguration") / ("map") / ("out") / (s"out$o", mapSection.out(s"out$o"))
+      }
+      json must /("nextRunTime", nextRunTime.toString)
+      json must /("schedule", schedule)
+      json must /("name", name)
     }
 
     "deserialize into object with all fields provided" >> {
@@ -125,7 +154,8 @@ class SyncJobSpec extends Specification with JsonMatchers {
            |    }
            |  },
            |  "nextRunTime":"${nextRunTime.toString}",
-           |  "schedule":"${schedule}"
+           |  "schedule":"${schedule}",
+           |  "name" : "SomeText"
            |}""".stripMargin)
       val o = Json.fromJson[SyncJob](json).get
 
@@ -149,7 +179,6 @@ class SyncJobSpec extends Specification with JsonMatchers {
       }
 
       o.jobConfiguration.signalVine.programId mustEqual signalVineSection.programId
-      o.jobConfiguration.signalVine.url mustEqual signalVineSection.url
       o.jobConfiguration.signalVine.token mustEqual signalVineSection.token
       o.jobConfiguration.signalVine.secret mustEqual signalVineSection.secret
       Result.foreach(signalVineSection.fields.indices) { i =>
