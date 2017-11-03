@@ -2,5 +2,5 @@
 set -e
 set -x
 
-cd ..
+cd ../
 sbt test
