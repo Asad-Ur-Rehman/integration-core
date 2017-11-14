@@ -1,4 +1,4 @@
 @Library('common-pipelines@master') _
 node {
-  library('signalvine/integration-core', '$BRANCH_NAME', 'github.com')
+  library('signalvine/integration-core', "$BRANCH_NAME", 'github.com')
 }
