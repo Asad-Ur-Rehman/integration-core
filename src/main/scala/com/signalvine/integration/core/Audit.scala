@@ -19,6 +19,7 @@ case object IntegrationFailed extends EventType{val value = "IntegrationFailed"}
 case object IntegrationTimeout extends EventType{val value = "IntegrationTimeout"}
 case object IntegrationDeactivated extends EventType{val value = "IntegrationDeactivated"}
 case object IntegrationActivated extends EventType{val value = "IntegrationActivated"}
+case object IntegrationPending extends EventType{val value = "IntegrationPending"}
 case object ConfigCreated extends EventType{val value = "ConfigCreated"}
 case object ConfigDeleted extends EventType{val value = "ConfigDeleted"}
 case object ConfigUpdated extends EventType{val value = "ConfigUpdated"}

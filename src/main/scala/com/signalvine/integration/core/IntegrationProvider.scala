@@ -8,7 +8,7 @@ trait IntegrationProvider {
 
   def getAuthFields: Seq[AuthField]
   def listFields(auth: Seq[AuthInfo]): Future[Seq[TargetField]]
-  def execute(jobConfiguration: JobConfiguration, authenticationInfo: Seq[AuthInfo]): Future[(Result, JobConfiguration)]
+  def execute(jobConfiguration: JobConfiguration, authenticationInfo: Seq[AuthInfo]): Future[(Option[Result], JobConfiguration)]
   def fillTargetConfig(
                         jobConfiguration: JobConfiguration,
                         authenticationInfo: Seq[AuthInfo],
